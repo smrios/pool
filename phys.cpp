@@ -64,16 +64,16 @@ void RackBallsTriangle(vector<ball> &balls, int count, Vector2 apexPos) {
   if (count < 15) return;
 
   float r = balls[0].radius;
-  float rowSpacing = std::sqrt(3.0f) * r;   // vertical distance between rows
-  float colSpacing = 2.0f * r;              // horizontal spacing
+  float rowSpacing = std::sqrt(3.0f) * r;
+  float colSpacing = 2.0f * r;
 
   int index = 0;
 
-  // 5 rows: 1, 2, 3, 4, 5 balls
+
   for (int row = 0; row < 5; ++row) {
     int ballsInRow = row + 1;
 
-    // Center row horizontally around apex X
+
     float rowWidth = (ballsInRow - 1) * colSpacing;
     float startY = apexPos.y - rowWidth * 0.5f;
     float x = apexPos.x + row * rowSpacing;
@@ -94,28 +94,26 @@ void ResolveCollision(ball& a, ball& b) {
   float dist = Vector2Length(delta);
   float minDist = a.radius + b.radius;
 
-  // No collision
+
   if (dist >= minDist || dist == 0.0f)
       return;
 
   Vector2 normal = Vector2Normalize(delta);
 
-  // --- Position correction (separate overlapping balls) ---
+
   float penetration = minDist - dist;
   Vector2 correction = normal * (penetration * 0.5f);
   a.pos = a.pos - correction;
   b.pos = b.pos + correction;
 
-  // --- Relative velocity ---
+
   Vector2 relativeVel = b.vel - a.vel;
 
   float velAlongNormal = Vector2DotProduct(relativeVel, normal);
 
-  // Balls are separating
   if (velAlongNormal > 0)
       return;
 
-  // --- Elastic collision (equal mass) ---
   float restitution = 1.0f; // perfectly elastic
 
   float impulseMag = -(1.0f + restitution) * velAlongNormal / 2.0f;
@@ -131,15 +129,14 @@ bool ResolveCollisionTOI(ball& a, ball& b, float dt, gameState &gs) {
   Vector2 dv = Vector2Subtract(b.vel, a.vel);
   float radiusSum = a.radius + b.radius;
   
-  // Safety check: If they are ALREADY overlapping, resolve them instantly
   float distSq = Vector2DotProduct(dp, dp);
   if (distSq < radiusSum * radiusSum) {
-    ResolveCollision(a, b); // Use your static resolver to push them apart
+    ResolveCollision(a, b);
     return true; 
   }
 
   float A = Vector2DotProduct(dv, dv);
-  if (A <= 0.000001f) return false; // Not moving relative to each other
+  if (A <= 0.000001f) return false;
 
   float B = 2.0f * Vector2DotProduct(dp, dv);
   float C = distSq - radiusSum * radiusSum;
@@ -150,13 +147,13 @@ bool ResolveCollisionTOI(ball& a, ball& b, float dt, gameState &gs) {
   float sqrtDisc = sqrtf(discriminant);
   float t0 = (-B - sqrtDisc) / (2 * A);
 
-  // If t0 is between 0 and dt, we have a collision this frame
+
   if (t0 >= 0.0f && t0 <= dt) {
-    // 1. Move to impact
+
     a.pos = Vector2Add(a.pos, Vector2Scale(a.vel, t0));
     b.pos = Vector2Add(b.pos, Vector2Scale(b.vel, t0));
 
-    // 2. Physics Response
+
     Vector2 normal = Vector2Normalize(Vector2Subtract(b.pos, a.pos));
     float velAlongNormal = Vector2DotProduct(Vector2Subtract(b.vel, a.vel), normal);
 
@@ -172,7 +169,7 @@ bool ResolveCollisionTOI(ball& a, ball& b, float dt, gameState &gs) {
         gs.currentShot.cueBounces++;
     }
 
-    // 3. Move remaining time
+
     float remaining = dt - t0;
     a.pos = Vector2Add(a.pos, Vector2Scale(a.vel, remaining));
     b.pos = Vector2Add(b.pos, Vector2Scale(b.vel, remaining));
@@ -231,8 +228,6 @@ void updateBalls(vector<ball*> &balls, gameState &gs, float timeScale){
   float dt = GetFrameTime() * timeScale;
   int sinks = 0;
 
-  //Check pockets first
-
   bool nonEightRemaining = false;
   bool eightSunk = false;
   for (auto* b : balls) {
@@ -252,7 +247,6 @@ void updateBalls(vector<ball*> &balls, gameState &gs, float timeScale){
   gs.currentShot.sinks = sinks-gs.currentShot.initSinks;
   gs.sunk = sinks;
 
-  //Apply friction only to non-sunk balls
   for (auto* b : balls) {
     if (b->sunk) continue;
     float friction = 0.983f;
@@ -261,7 +255,7 @@ void updateBalls(vector<ball*> &balls, gameState &gs, float timeScale){
       b->vel = {0,0};
   }
 
-  //Solve TOI collisions only for non-sunk balls
+
   for (int i = 0; i < balls.size(); i++) {
     if (balls[i]->sunk) continue;
     for (int j = i + 1; j < balls.size(); j++) {
@@ -270,13 +264,10 @@ void updateBalls(vector<ball*> &balls, gameState &gs, float timeScale){
     }
   }
 
-  //Move remaining balls
   for (auto* b : balls) {
     if (b->sunk) continue;
     b->pos += b->vel * dt;
   }
-
-  //Wall collisions
   for (auto* b : balls) {
     if (b->sunk) continue;
     if(ResolveWallCollision(*b)){
