@@ -26,7 +26,6 @@ int main(){
 
   Texture ballOverlay = LoadTexture("ballover.png");
   
-  //initialization
   vector<ball*> balls;  
   ball cue = {ballRadius, {playingSurface.width*0.2f,playingSurface.height/2},{0,0}, false, true};
   vector<ball> rack;
@@ -99,13 +98,13 @@ int main(){
         }
         BeginDrawing();
           ClearBackground(DARKTEAL);
-          //BACKGROUND
+
             DrawTexture(res.tx_background, 0, 0, WHITE);
             drawInfoText(gs);
             drawTable(time);
-          //HOLES
+
             drawHoles();
-          //GHOSTS
+
             if(firstBall.hitBall != nullptr){
               DrawCircleV(firstBall.ghostPos + (Vector2){playingSurface.x, playingSurface.y}, ballRadius, {0,0,0,70});
               Vector2 dir = firstBall.hitBall->pos - firstBall.ghostPos;
@@ -113,11 +112,11 @@ int main(){
                   firstBall.hitBall->pos + (Vector2){playingSurface.x, playingSurface.y}, 
                   firstBall.hitBall->pos + (Vector2){playingSurface.x, playingSurface.y} + (Vector2Normalize(dir) * 64), 5, {0,0,0,70});
             }
-          //BALLS
+
             DrawCircleV(Vector2Add({playingSurface.x, playingSurface.y}, cue.pos), cue.radius, (Vector2Length(cue.vel) > minMovingShotSpeed) ? RED : VANCREAM);
 
             drawBalls(rack);
-          //PREVIEWS
+
             DrawCircleV(ghostPos, 8, VANCREAM);
             for(int i = 0; i < hintDots; i++){
               Vector2 pos = (cp + (Vector2Normalize(dir) * cue.radius)) + Vector2Normalize(dir) * (i+1) * pow((magnitude / maxDist), 2) * dotSpacing;
