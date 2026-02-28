@@ -6,7 +6,6 @@
 
 using namespace std;
 
-//STRUCTS
 typedef enum gamePhase{
   shooting,
   postGame
@@ -61,31 +60,29 @@ typedef struct resources{
     int bm_maskLoc;
 } resources;
 
-//CONSTANTS
-  //Old Palette
     const Color DARKTEAL = {17, 75, 95, 255};
     const Color SEAGREEN = {26, 147, 111, 255};
     const Color CELADON  = {136, 212, 152, 255};
     const Color TEAGREEN = {198, 218, 191, 255};
     const Color VANCREAM = {243, 233, 210, 255};
-  //Animation/Graphics
+
     const float sinkAnimationSpeed = 10.0f;
     const int hintDots = 8;
     const float dotSpacing = 32;
-  //Physics
+
     const float HOLE_SIZE = 40;
     const Vector2 TABLE_SIZE = {1024, 512};
     const float ballRadius = 18;
-  //Input
+
     const float maxDist = 256;
-  //Scoring
+
     const int cueBounceMulti = 3;
     const int totalBounceMulti = 1;
     const int cueRailHitMulti = 4;
     const int totalRailHitMulti = 2;
     const float minMovingShotSpeed = 50.0f;
     const int movingShotMulti = 4;
-//Globals
+
   extern Rectangle playingSurface;
   extern resources res;
   extern vector<Vector2> Holes;
